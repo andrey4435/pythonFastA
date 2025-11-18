@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить фильм</title>
+</head>
+<body>
+    <h2>Добавление нового фильма</h2>
+    <form action="/add_movie" method="post" enctype="multipart/form-data">
+        <label>Название фильма:</label><br>
+        <input type="text" name="name" required><br><br>
+
+        <label>Режиссёр:</label><br>
+        <input type="text" name="director" required><br><br>
+
+        <label>Стоимость (в условных единицах):</label><br>
+        <input type="number" name="cost" required><br><br>
+
+        <label>Доступен для просмотра:</label>
+        <input type="checkbox" name="is_available"><br><br>
+
+        <label>Описание фильма (текстовый файл):</label><br>
+        <input type="file" name="description_file" accept=".txt"><br><br>
+
+        <label>Обложка фильма (изображение):</label><br>
+        <input type="file" name="cover_file" accept="image/*"><br><br>
+
+        <input type="submit" value="Добавить фильм">
+    </form>
+
+    <br>
+    <a href="/movietop">← Вернуться к списку фильмов</a>
+</body>
+</html>
