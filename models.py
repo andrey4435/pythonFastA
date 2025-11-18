@@ -7,6 +7,6 @@ class Movietop(BaseModel):
     cost: int
     director: str
     is_available: bool
-    cover_url: Optional[str] = None          # ссылка на обложку
-    description_url: Optional[str] = None    # ссылка на описание
+    cover_url: Optional[str] = None
+    description_url: Optional[str] = None
 

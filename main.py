@@ -17,11 +17,7 @@ ALGORITHM = "HS256"
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-def get_current_user(authorization: str = Header(...)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
-
-    token = authorization.split(" ")[1]
+def get_current_user(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
@@ -46,7 +42,6 @@ movietop_list: List[Movietop] = [
     Movietop(id=9, name="Ёлки", cost=200, director="Тимур Бекмамбетов", is_available=False),
     Movietop(id=10, name="Адмиралъ", cost=280, director="Андрей Кравчук", is_available=True),
 ]
-
 
 sessions = {}
 
@@ -79,17 +74,16 @@ def show_add_movie_form(request: Request):
 
 
 @app.post("/add_movie")
-@app.post("/add_movie")
 async def add_movie(
-    name: str = Form(...),
-    director: str = Form(...),
-    cost: int = Form(...),
-    is_available: bool = Form(False),
-    description_file: UploadFile = File(None),
-    cover_file: UploadFile = File(None),
-    current_user: str = Depends(get_current_user)
+        name: str = Form(...),
+        director: str = Form(...),
+        cost: int = Form(...),
+        is_available: bool = Form(False),
+        description_file: UploadFile = File(None),
+        cover_file: UploadFile = File(None),
+        token: str = Form(...)
 ):
-
+    get_current_user(token)
     new_id = max(m.id for m in movietop_list) + 1
     description_path = None
     cover_path = None
@@ -125,6 +119,7 @@ async def add_movie(
 
     return RedirectResponse(url="/movies", status_code=303)
 
+
 @app.get("/movies", response_class=HTMLResponse)
 def show_movies(request: Request):
     return templates.TemplateResponse("movies.html", {"request": request, "movies": movietop_list})
@@ -147,7 +142,7 @@ async def login(username: str = Form(...), password: str = Form(...)):
             "expires_at": now + timedelta(minutes=2)
         }
 
-        response = RedirectResponse(url="/movies", status_code=303)
+        response = RedirectResponse(url="/user", status_code=303)
         response.set_cookie(
             key="session_token",
             value=token,
@@ -191,6 +186,7 @@ def get_user_profile(session_token: str = Cookie(None)):
         "movies": [m.dict() for m in movietop_list]
     }
 
+
 @app.post("/login_json")
 def login_json(payload: dict = Body(...)):
     username = payload.get("username")
@@ -217,8 +213,6 @@ def login_json(payload: dict = Body(...)):
         "token_type": "bearer",
         "expires_in_minutes": 10
     }
-
-
 
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
